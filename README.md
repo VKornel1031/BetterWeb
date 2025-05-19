@@ -1,7 +1,7 @@
 # BetterWeb Browser
 
 <p align="center">
-  <img src="assets/icon.png" alt="BetterWeb Logo" width="120" height="120">
+  <img src="icon.png" alt="BetterWeb Logo" width="120" height="120">
 </p>
 
 <p align="center">
@@ -19,33 +19,13 @@
 
 ## 📸 Screenshots
 
-![BetterWeb Browser](screenshots/browser.png)
-![BetterWeb Homepage](screenshots/homepage.png)
-
-*Note: Replace with actual screenshots of your application*
+![BetterWeb Browser](browser.png)
 
 ## 🚀 Installation
 
 ### Pre-built Binaries
 
-Download the latest release for your platform from the [Releases](https://github.com/yourusername/betterweb/releases) page.
-
-### Build from Source
-
-\`\`\`bash
-# Clone the repository
-git clone https://github.com/yourusername/betterweb.git
-cd betterweb
-
-# Install dependencies
-npm install
-
-# Start the application
-npm start
-
-# Build the application
-npm run build
-\`\`\`
+Download the latest release for your platform from the [Releases] page.
 
 ## 💻 Usage
 
