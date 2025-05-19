@@ -11,11 +11,9 @@
 ## ✨ Features
 
 - **Clean, Minimalist Interface**: Dark theme with teal accents for a modern look
-- **Floating Tab Design**: Elegant tab design inspired by Brave browser
 - **Google Search Integration**: Seamless search experience with Google
 - **Custom Homepage**: Beautiful, distraction-free search page
-- **Multiple Tabs**: Easy tab management with intuitive controls
-- **Smart Tab Closing**: Close the app when closing the last tab
+- **Good Performance**: Light Weight browser that gives really good performance
 
 ## 📸 Screenshots
 
@@ -36,65 +34,13 @@ Download the latest release for your platform from the [Releases] page.
 - Open new tabs with the + button
 - Close tabs with the X button on each tab
 
-### Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| Ctrl+T | New Tab |
-| Ctrl+W | Close Tab |
-| Ctrl+R | Refresh |
-| Ctrl+L | Focus Address Bar |
-| Alt+Left | Back |
-| Alt+Right | Forward |
-
 ## 🔧 Technologies
 
 - **Electron**: Framework for creating native applications with web technologies
 - **HTML/CSS/JavaScript**: Core web technologies for the UI
 - **Chromium**: Web browser engine that powers the webview components
 
-## 📁 Project Structure
-
-\`\`\`
-betterweb/
-├── assets/               # Application assets (icons, images)
-├── main.js               # Main Electron process
-├── preload.js            # Preload script for secure IPC
-├── index.html            # Browser UI template
-├── homepage.html         # Custom search homepage
-├── renderer.js           # Browser UI logic
-├── styles.css            # Browser UI styling
-└── package.json          # Project configuration
-\`\`\`
-
-## 🛠️ Development
-
-### Prerequisites
-
-- Node.js (v14 or later)
-- npm (v6 or later)
-
 ### Setup Development Environment
-
-\`\`\`bash
-# Install dependencies
-npm install
-
-# Start the application in development mode
-npm run dev
-\`\`\`
-
-### Building for Production
-
-\`\`\`bash
-# Build for current platform
-npm run build
-
-# Build for specific platforms
-npm run build:win
-npm run build:mac
-npm run build:linux
-\`\`\`
 
 ## 🤝 Contributing
 
@@ -108,7 +54,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache V2 License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgements
 
