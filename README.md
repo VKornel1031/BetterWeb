@@ -19,7 +19,7 @@
 
 ## 📸 Screenshots
 
-![BetterWeb Browser](browser.png)
+![BetterWeb Browser](browser.PNG)
 
 ## 🚀 Installation
 
