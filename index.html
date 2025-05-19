@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetterWeb Browser</title>
+  <style>
+    :root {
+      --bg-color: #0f1419;
+      --surface-color: #161b22;
+      --text-color: #ffffff;
+      --text-secondary: #8892b0;
+      --accent-color: #64ffda;
+      --accent-dark: #00b8a9;
+      --border-color: #2d3748;
+      --tab-active: #1a202c;
+      --tab-inactive: #161b22;
+      --input-bg: rgba(22, 27, 34, 0.8);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    .browser {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: var(--bg-color);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background-color: var(--surface-color);
+      padding: 10px 10px 0 10px;
+      height: 46px;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      background-color: var(--tab-inactive);
+      border-radius: 8px 8px 0 0;
+      margin-right: 6px;
+      max-width: 200px;
+      min-width: 120px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      user-select: none;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      transition: all 0.2s ease;
+      position: relative;
+      top: 1px;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      height: 36px;
+    }
+
+    .tab.active {
+      background-color: var(--tab-active);
+      color: var(--text-color);
+      border-bottom: 2px solid var(--accent-color);
+      box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+      height: 38px;
+      z-index: 2;
+    }
+
+    .tab:hover:not(.active) {
+      background-color: rgba(45, 55, 72, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .tab span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+    }
+
+    .close-tab {
+      background: none;
+      border: none;
+      font-size: 16px;
+      margin-left: 8px;
+      cursor: pointer;
+      opacity: 0.7;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+    }
+
+    .close-tab:hover {
+      opacity: 1;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+    }
+
+    .new-tab {
+      background: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-left: 4px;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      margin-top: 2px;
+    }
+
+    .new-tab:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+    }
+
+    /* Address Bar */
+    .address-bar {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-button {
+      background: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .nav-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+    }
+
+    .nav-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #url-input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 14px;
+      outline: none;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      transition: all 0.2s ease;
+    }
+
+    #url-input:focus {
+      border-color: var(--accent-color);
+    }
+
+    /* Webviews */
+    .webviews {
+      flex: 1;
+      position: relative;
+      background-color: var(--bg-color);
+    }
+
+    webview {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      background-color: white;
+    }
+
+    webview.active {
+      display: flex;
+    }
+
+    /* Loading indicator */
+    .loading-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--accent-color);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+
+    .loading-indicator.active {
+      animation: loading 2s infinite ease-in-out;
+    }
+
+    @keyframes loading {
+      0% { transform: scaleX(0); }
+      50% { transform: scaleX(0.7); }
+      100% { transform: scaleX(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="browser">
+    <div class="tabs">
+      <div class="tab active" data-tab-id="tab1" onclick="activateTab('tab1')">
+        <span>Home</span>
+        <button class="close-tab" id="first-tab-close" onclick="event.stopPropagation(); closeTab('tab1')" style="display: none;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <button class="new-tab" onclick="createNewTab()">+</button>
+    </div>
+    
+    <div class="address-bar">
+      <button class="nav-button" id="back-button" onclick="goBack()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </button>
+      <button class="nav-button" id="forward-button" onclick="goForward()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+      <button class="nav-button" onclick="refresh()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+        </svg>
+      </button>
+      <input type="text" id="url-input" placeholder="Search or enter website name" onkeydown="handleUrlInput(event)">
+    </div>
+    
+    <div class="loading-indicator" id="loading-bar"></div>
+    
+    <div class="webviews">
+      <webview id="tab1" src="homepage.html" class="active" autosize="on"></webview>
+    </div>
+  </div>
+
+  <script>
+    // Global tab counter
+    let tabCounter = 1;
+    let activeTabId = 'tab1';
+    let webviewListeners = {};
+
+    // Initialize event listeners for the first webview
+    document.addEventListener('DOMContentLoaded', () => {
+      setupWebviewListeners('tab1');
+      updateNavButtons();
+      updateTabCloseButtons();
+    });
+
+    // Setup webview listeners
+    function setupWebviewListeners(tabId) {
+      const webview = document.getElementById(tabId);
+      const loadingBar = document.getElementById('loading-bar');
+      
+      // Store listeners for potential cleanup later
+      webviewListeners[tabId] = {
+        didStartLoading: () => {
+          if (activeTabId === tabId) {
+            updateAddressBar(webview);
+            loadingBar.classList.add('active');
+          }
+        },
+        didStopLoading: () => {
+          if (activeTabId === tabId) {
+            updateAddressBar(webview);
+            loadingBar.classList.remove('active');
+            updateNavButtons();
+          }
+        },
+        didFinishLoad: () => {
+          if (activeTabId === tabId) {
+            updateAddressBar(webview);
+            updateTabTitle(webview, tabId);
+          }
+        },
+        pageTitleUpdated: (event) => {
+          updateTabTitle(webview, tabId, event.title);
+        },
+        didNavigate: () => {
+          if (activeTabId === tabId) {
+            updateNavButtons();
+          }
+        },
+        didNavigateInPage: () => {
+          if (activeTabId === tabId) {
+            updateNavButtons();
+          }
+        }
+      };
+      
+      // Add event listeners
+      webview.addEventListener('did-start-loading', webviewListeners[tabId].didStartLoading);
+      webview.addEventListener('did-stop-loading', webviewListeners[tabId].didStopLoading);
+      webview.addEventListener('did-finish-load', webviewListeners[tabId].didFinishLoad);
+      webview.addEventListener('page-title-updated', webviewListeners[tabId].pageTitleUpdated);
+      webview.addEventListener('did-navigate', webviewListeners[tabId].didNavigate);
+      webview.addEventListener('did-navigate-in-page', webviewListeners[tabId].didNavigateInPage);
+    }
+
+    // Create a new tab
+    function createNewTab() {
+      tabCounter++;
+      const tabId = `tab${tabCounter}`;
+      
+      // Create new tab button
+      const tabsContainer = document.querySelector('.tabs');
+      const newTabButton = document.querySelector('.new-tab');
+      
+      const tab = document.createElement('div');
+      tab.className = 'tab';
+      tab.dataset.tabId = tabId;
+      tab.innerHTML = `
+        <span>New Tab</span>
+        <button class="close-tab" onclick="event.stopPropagation(); closeTab('${tabId}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      `;
+      tab.onclick = function() { activateTab(tabId); };
+      
+      tabsContainer.insertBefore(tab, newTabButton);
+      
+      // Create new webview
+      const webviewsContainer = document.querySelector('.webviews');
+      const webview = document.createElement('webview');
+      webview.id = tabId;
+      webview.src = 'homepage.html';
+      webview.className = '';
+      webview.setAttribute('autosize', 'on');
+      
+      webviewsContainer.appendChild(webview);
+      
+      // Setup event listeners for the new webview
+      setupWebviewListeners(tabId);
+      
+      // Activate the new tab
+      activateTab(tabId);
+      
+      // Update close buttons visibility
+      updateTabCloseButtons();
+    }
+
+    // Close a tab
+    function closeTab(tabId) {
+      const tabs = document.querySelectorAll('.tab');
+      
+      // If it's the first tab and it's the only tab, signal to close the app
+      if (tabId === 'tab1' && tabs.length === 1) {
+        // In a real Electron app, we would use IPC to tell the main process to close the app
+        // For this demo, we'll just show an alert
+        if (window.electron) {
+          // If we're in Electron and have access to the electron object
+          window.electron.closeApp();
+        } else {
+          alert("This would close the application in the Electron build.");
+          return; // Don't close the tab
+        }
+      }
+      
+      // Remove tab button
+      const tab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      tab.remove();
+      
+      // Remove webview and clean up listeners
+      const webview = document.getElementById(tabId);
+      if (webviewListeners[tabId]) {
+        webview.removeEventListener('did-start-loading', webviewListeners[tabId].didStartLoading);
+        webview.removeEventListener('did-stop-loading', webviewListeners[tabId].didStopLoading);
+        webview.removeEventListener('did-finish-load', webviewListeners[tabId].didFinishLoad);
+        webview.removeEventListener('page-title-updated', webviewListeners[tabId].pageTitleUpdated);
+        webview.removeEventListener('did-navigate', webviewListeners[tabId].didNavigate);
+        webview.removeEventListener('did-navigate-in-page', webviewListeners[tabId].didNavigateInPage);
+        delete webviewListeners[tabId];
+      }
+      webview.remove();
+      
+      // If the closed tab was active, activate the first available tab
+      if (activeTabId === tabId) {
+        const firstTab = document.querySelector('.tab');
+        if (firstTab) {
+          activateTab(firstTab.dataset.tabId);
+        }
+      }
+      
+      // Update close buttons visibility
+      updateTabCloseButtons();
+    }
+
+    // Update tab close buttons visibility
+    function updateTabCloseButtons() {
+      const tabs = document.querySelectorAll('.tab');
+      const firstTabCloseButton = document.getElementById('first-tab-close');
+      
+      // Show close button on first tab only if there are multiple tabs
+      if (tabs.length > 1) {
+        firstTabCloseButton.style.display = 'flex';
+      } else {
+        firstTabCloseButton.style.display = 'none';
+      }
+    }
+
+    // Activate a tab
+    function activateTab(tabId) {
+      // Deactivate all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      document.querySelectorAll('webview').forEach(webview => {
+        webview.classList.remove('active');
+      });
+      
+      // Activate the selected tab
+      const tab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      const webview = document.getElementById(tabId);
+      
+      if (tab && webview) {
+        tab.classList.add('active');
+        webview.classList.add('active');
+        activeTabId = tabId;
+        updateAddressBar(webview);
+        updateNavButtons();
+      }
+    }
+
+    // Update the address bar with the current URL
+    function updateAddressBar(webview) {
+      const urlInput = document.getElementById('url-input');
+      const currentUrl = webview.getURL();
+      
+      if (currentUrl && !currentUrl.startsWith('file://')) {
+        urlInput.value = currentUrl;
+      } else {
+        urlInput.value = '';
+        urlInput.placeholder = 'Search or enter website name';
+      }
+    }
+
+    // Update tab title
+    function updateTabTitle(webview, tabId, title) {
+      const tab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      if (tab) {
+        const titleSpan = tab.querySelector('span');
+        titleSpan.textContent = title || webview.getTitle() || 'New Tab';
+      }
+    }
+
+    // Handle URL input
+    function handleUrlInput(event) {
+      if (event.key === 'Enter') {
+        const urlInput = document.getElementById('url-input');
+        const url = urlInput.value.trim();
+        
+        if (url) {
+          const activeWebview = document.querySelector('webview.active');
+          
+          // Check if it's a valid URL
+          if (url.includes('.') && !url.includes(' ')) {
+            // Add https:// if protocol is missing
+            const hasProtocol = /^https?:\/\//i.test(url);
+            const fullUrl = hasProtocol ? url : `https://${url}`;
+            activeWebview.src = fullUrl;
+          } else {
+            // Treat as a search query
+            activeWebview.src = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+          }
+        }
+      }
+    }
+
+    // Navigation functions
+    function goBack() {
+      const activeWebview = document.querySelector('webview.active');
+      if (activeWebview && activeWebview.canGoBack()) {
+        activeWebview.goBack();
+      }
+    }
+
+    function goForward() {
+      const activeWebview = document.querySelector('webview.active');
+      if (activeWebview && activeWebview.canGoForward()) {
+        activeWebview.goForward();
+      }
+    }
+
+    function refresh() {
+      const activeWebview = document.querySelector('webview.active');
+      if (activeWebview) {
+        activeWebview.reload();
+      }
+    }
+
+    // Update navigation buttons state
+    function updateNavButtons() {
+      const activeWebview = document.querySelector('webview.active');
+      const backButton = document.getElementById('back-button');
+      const forwardButton = document.getElementById('forward-button');
+      
+      if (activeWebview) {
+        backButton.disabled = !activeWebview.canGoBack();
+        forwardButton.disabled = !activeWebview.canGoForward();
+      }
+    }
+  </script>
+</body>
+</html>
